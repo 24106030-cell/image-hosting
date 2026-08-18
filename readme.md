@@ -64,9 +64,12 @@ IBM
 The bucket name must match the value in app.py:
 
 BUCKET_NAME = "IBM"
+
 3. Configure the bucket
 
 If you want to display uploaded images using a public URL, make the IBM bucket public.
+
+
 
 Go to:
 
@@ -78,6 +81,8 @@ Storage Policy
 
 The Flask application needs permission to upload files to the bucket.
 
+
+
 Open:
 
 Supabase Dashboard
@@ -85,10 +90,32 @@ Supabase Dashboard
 
 Run:
 
+-- Allow uploads to IBM
 create policy "Allow IBM uploads"
 on storage.objects
 for insert
 to public
+with check (
+    bucket_id = 'IBM'
+);
+
+-- Allow the upload API to return the newly-created object
+create policy "Allow IBM select"
+on storage.objects
+for select
+to public
+using (
+    bucket_id = 'IBM'
+);
+
+-- Required because your Python code uses upsert=True
+create policy "Allow IBM updates"
+on storage.objects
+for update
+to public
+using (
+    bucket_id = 'IBM'
+)
 with check (
     bucket_id = 'IBM'
 );

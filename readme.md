@@ -11,14 +11,14 @@ A simple image upload application built with **Flask** and **Supabase Storage**.
 
 ## Setup
 
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/udhayasankar-UD/IBM-Cloud-Image-Hosting.git
 cd IBM-Cloud-Image-Hosting
 ```
 
-### 2. Create virtual environment
+### 2. Create a Virtual Environment
 
 ```bash
 python -m venv .venv
@@ -30,67 +30,74 @@ Activate it on Windows:
 .venv\Scripts\activate
 ```
 
-### 3. Install dependencies
+### 3. Install Dependencies
 
 ```bash
 pip install Flask supabase python-dotenv
 ```
 
-### 4. Create `.env`
+### 4. Create `.env` File
 
-Create a `.env` file in the project folder:
+Create a `.env` file in the project root:
 
 ```env
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_key
+SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
+SUPABASE_KEY=YOUR_SUPABASE_KEY
 ```
 
-1. Create a Supabase project
+You can find these values in:
 
-Create a project in Supabase.
+**Supabase Dashboard → Project Settings → API**
 
-2. Create a Storage bucket
+> Never upload the `.env` file to GitHub.
+
+---
+
+## Supabase Storage Setup
+
+### 1. Create a Supabase Project
+
+Create a project from the Supabase Dashboard.
+
+### 2. Create a Storage Bucket
 
 Go to:
 
-Supabase Dashboard
-→ Storage
-→ New Bucket
+**Supabase Dashboard → Storage → New Bucket**
 
 Create a bucket named:
 
+```text
 IBM
+```
 
-The bucket name must match the value in app.py:
+The bucket name must match the value in `app.py`:
 
+```python
 BUCKET_NAME = "IBM"
+```
 
-3. Configure the bucket
+### 3. Make the Bucket Public
 
-If you want to display uploaded images using a public URL, make the IBM bucket public.
+If you want uploaded images to be accessible using a public URL:
 
+**Storage → IBM → Configuration → Public bucket**
 
+Enable public access.
+
+---
+
+## Storage Policy
+
+The Flask application needs permission to upload images to the `IBM` bucket.
 
 Go to:
 
-Storage → IBM → Configuration
-
-and enable public access.
-
-Storage Policy
-
-The Flask application needs permission to upload files to the bucket.
-
-
-
-Open:
-
-Supabase Dashboard
-→ SQL Editor
+**Supabase Dashboard → SQL Editor**
 
 Run:
 
--- Allow uploads to IBM
+```sql
 create policy "Allow IBM uploads"
 on storage.objects
 for insert
@@ -99,7 +106,6 @@ with check (
     bucket_id = 'IBM'
 );
 
--- Allow the upload API to return the newly-created object
 create policy "Allow IBM select"
 on storage.objects
 for select
@@ -108,7 +114,6 @@ using (
     bucket_id = 'IBM'
 );
 
--- Required because your Python code uses upsert=True
 create policy "Allow IBM updates"
 on storage.objects
 for update
@@ -119,35 +124,25 @@ using (
 with check (
     bucket_id = 'IBM'
 );
+```
 
-This allows files to be uploaded to the IBM bucket.
-
-Environment Variables
-
-Create a .env file in the root of the project:
-
-SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
-SUPABASE_KEY=YOUR_SUPABASE_KEY
-
-You can find the required Supabase information in:
-
-Supabase Dashboard
-→ Project Settings
-→ API
-
-Do not upload your .env file to GitHub.
+---
 
 ## Run the Application
+
+Start the Flask server:
 
 ```bash
 python app.py
 ```
 
-Open:
+Open your browser and go to:
 
 ```text
 http://127.0.0.1:5000
 ```
+
+---
 
 ## Project Structure
 
@@ -164,6 +159,8 @@ cloud-image-Hosting/
 └── README.md
 ```
 
+---
+
 ## Features
 
 * Upload images
@@ -172,14 +169,21 @@ cloud-image-Hosting/
 * Display uploaded images
 * Flask backend
 
-## Important
+---
 
-Do not upload `.env` to GitHub because it contains your Supabase credentials.
+## `.gitignore`
 
-Add this to `.gitignore`:
+Make sure your `.gitignore` contains:
 
 ```text
 .env
 .venv/
 __pycache__/
+*.pyc
 ```
+
+This prevents your Supabase credentials and virtual environment from being uploaded to GitHub.
+
+## Important
+
+**Never commit your `.env` file or Supabase secret/service-role key to GitHub.**
